@@ -1,14 +1,17 @@
 import { Controller, Get, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices'
+import { lastValueFrom } from 'rxjs';
 
 @Controller()
 export class AppController {
   constructor(
-    @Inject('USER_SERVICE') private readonly userClient: ClientProxy
+    @Inject('USER_SERVICE') private readonly userServiceClient: ClientProxy
   ) {}
 
   @Get('users')
   async getUsers() {
-    return this.userClient.send({ cmd: 'get-users'}, {}).toPromise();
+    console.log('Rota /users acessada');
+    const response$ = this.userServiceClient.send({ cmd: 'get-users' }, {});
+    return await lastValueFrom(response$);
   }
 }

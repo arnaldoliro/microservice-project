@@ -11,11 +11,11 @@ import { AppController } from './app.controller';
     }),
     ClientsModule.register([
       {
-        name: 'USER-SERVICE',
+        name: 'USER_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: process.env.HOST,
-          port: Number(process.env.USER_SERVICE_PORT),
+          host: process.env.HOST || "localhost",
+          port: Number(process.env.USER_SERVICE_PORT || 3001),
         },
       }
     ])
