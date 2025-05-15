@@ -11,6 +11,6 @@ async function bootstrap() {
     },
   });
   await app.listen();
-  console.log('User microservice running on TCP port 3002');
+  console.log('Auth microservice running on TCP port 3002');
 }
 bootstrap();
