@@ -9,6 +9,6 @@ export class AppController {
 
   @Get('users')
   async getUsers() {
-    return this.userClient.send({ cmd: 'get-users'}, {});
+    return this.userClient.send({ cmd: 'get-users'}, {}).toPromise();
   }
 }
