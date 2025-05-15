@@ -1,16 +1,21 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
     ClientsModule.register([
       {
-        name: 'USER-SERVICE',
+        name: 'USER_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: process.env.HOST,
-          port: Number(process.env.USER_SERVICE_PORT),
+          host:'localhost',
+          port: 3001,
         },
       }
     ])

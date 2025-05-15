@@ -1,14 +1,15 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/microservice-project/src",
+  "sourceRoot": "apps/api-gateway/src",
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
-    "tsConfigPath": "apps/microservice-project/tsconfig.app.json"
+    "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
   },
   "monorepo": true,
-  "root": "apps/microservice-project",
+  "defaultProject": "api-gateway",
+  "root": "apps/api-gateway",
   "projects": {
     "api-gateway": {
       "type": "application",
@@ -37,15 +38,6 @@
         "tsConfigPath": "libs/database/tsconfig.lib.json"
       }
     },
-    "microservice-project": {
-      "type": "application",
-      "root": "apps/microservice-project",
-      "entryFile": "main",
-      "sourceRoot": "apps/microservice-project/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/microservice-project/tsconfig.app.json"
-      }
-    },
     "service-auth": {
       "type": "application",
       "root": "apps/service-auth",
@@ -53,6 +45,15 @@
       "sourceRoot": "apps/service-auth/src",
       "compilerOptions": {
         "tsConfigPath": "apps/service-auth/tsconfig.app.json"
+      }
+    },
+    "service-user": {
+      "type": "application",
+      "root": "apps/service-user",
+      "entryFile": "main",
+      "sourceRoot": "apps/service-user/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/service-user/tsconfig.app.json"
       }
     }
   }
