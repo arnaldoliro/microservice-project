@@ -8,7 +8,7 @@
   "scripts": {
     "start:gateway": "nest start api-gateway --watch",
     "start:user": "nest start service-user --watch",
-    "start:user:dev": "ts-node-dev apps/service-user/src/main.ts",
+    "start:auth": "nest start service-auth --watch",
     "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",

@@ -1,12 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
 import { ServiceAuthService } from './service-auth.service';
+import { MessagePattern } from '@nestjs/microservices';
 
 @Controller()
 export class ServiceAuthController {
-  constructor(private readonly serviceAuthService: ServiceAuthService) {}
-
-  @Get()
-  getHello(): string {
-    return this.serviceAuthService.getHello();
+  @MessagePattern({ cmd: 'get-auth' })
+  async getAuth() {
+    return 'Hello from auth-service!';
   }
 }

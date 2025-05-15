@@ -17,6 +17,14 @@ import { AppController } from './app.controller';
           host:'localhost',
           port: 3001,
         },
+      },
+      {
+        name: 'AUTH_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: 'localhost',
+          port: 3002,
+        },
       }
     ])
   ],
