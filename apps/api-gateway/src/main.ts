@@ -9,11 +9,11 @@ async function bootstrap() {
       transport: Transport.TCP,
       options: {
         host: process.env.HOST,
-        port: Number(process.env.PORT),
+        port: Number(process.env.API_TCP_PORT),
       },
     });
   
   await app.startAllMicroservices();
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(Number(process.env.API_HTTP_PORT));
 }
 bootstrap();

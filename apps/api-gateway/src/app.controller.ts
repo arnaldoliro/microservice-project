@@ -8,7 +8,7 @@ export class AppController {
     @Inject('USER_SERVICE') private readonly userServiceClient: ClientProxy
   ) {}
 
-  @Get('users')
+  @Get('/users')
   async getUsers() {
     console.log('Rota /users acessada');
     const response$ = this.userServiceClient.send({ cmd: 'get-users' }, {});

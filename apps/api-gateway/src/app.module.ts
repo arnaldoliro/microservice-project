@@ -14,8 +14,8 @@ import { AppController } from './app.controller';
         name: 'USER_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: process.env.HOST || "localhost",
-          port: Number(process.env.USER_SERVICE_PORT || 3001),
+          host:'localhost',
+          port: 3001,
         },
       }
     ])

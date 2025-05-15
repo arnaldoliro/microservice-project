@@ -1,14 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { ClientProxy } from '@nestjs/microservices';
+import { of } from 'rxjs';
 
 describe('AppController', () => {
   let appController: AppController;
-  let mockClientProxy: Partial<ClientProxy>;
+  let userServiceClient: ClientProxy;
 
   beforeEach(async () => {
-    mockClientProxy = {
-      send: jest.fn().mockReturnValue('mocked response'),
+    const userServiceClientMock = {
+      send: jest.fn(() => of('Hello from user-service!')),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -16,20 +17,18 @@ describe('AppController', () => {
       providers: [
         {
           provide: 'USER_SERVICE',
-          useValue: mockClientProxy,
+          useValue: userServiceClientMock,
         },
       ],
     }).compile();
 
     appController = module.get<AppController>(AppController);
+    userServiceClient = module.get<ClientProxy>('USER_SERVICE');
   });
 
-  describe('getUsers', () => {
-    it('should call userClient.send with correct pattern', async () => {
-      const result = await appController.getUsers();
-
-      expect(mockClientProxy.send).toHaveBeenCalledWith({ cmd: 'get-users' }, {});
-      expect(result).toBe('mocked response');
-    });
+  it('should call userClient.send with correct pattern', async () => {
+    const result = await appController.getUsers();
+    expect(userServiceClient.send).toHaveBeenCalledWith({ cmd: 'get-users' }, {});
+    expect(result).toBe('Hello from user-service!');
   });
 });
