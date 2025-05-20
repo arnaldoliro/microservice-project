@@ -15,7 +15,7 @@ import { AppController } from './app.controller';
         transport: Transport.TCP,
         options: {
           host:'localhost',
-          port: 3001,
+          port: 3003,
         },
       },
       {
@@ -23,7 +23,7 @@ import { AppController } from './app.controller';
         transport: Transport.TCP,
         options: {
           host: 'localhost',
-          port: 3002,
+          port: 3004,
         },
       }
     ])
