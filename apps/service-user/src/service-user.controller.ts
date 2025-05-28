@@ -4,8 +4,10 @@ import { ServiceUserService } from './service-user.service';
 
 @Controller()
 export class ServiceUserController {
+  constructor(private readonly userService: ServiceUserService) {}
+
   @MessagePattern({ cmd: 'get-users' })
   async getUsers() {
-    return 'Hello from user-service!'
+    return this.userService.findUsers()
   }
 }
