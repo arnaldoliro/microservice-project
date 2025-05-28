@@ -9,5 +9,5 @@ export const getTypeOrmConfig = (configService: ConfigService): DataSourceOption
     password: configService.get<string>('DB_PASSWORD'),
     sid: configService.get<string>('DB_SID'),
     entities: [],
-    synchronize: true
+    synchronize: false
 })
