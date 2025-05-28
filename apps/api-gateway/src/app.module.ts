@@ -14,16 +14,16 @@ import { AppController } from './app.controller';
         name: 'USER_SERVICE',
         transport: Transport.TCP,
         options: {
-          host:'localhost',
-          port: 3003,
+          host: process.env.HOST,
+          port: Number(process.env.USER_SERVICE_PORT),
         },
       },
       {
         name: 'AUTH_SERVICE',
         transport: Transport.TCP,
         options: {
-          host: 'localhost',
-          port: 3004,
+          host: process.env.HOST,
+          port: Number(process.env.AUTH_SERVICE_PORT),
         },
       }
     ])
