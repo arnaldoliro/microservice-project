@@ -17,9 +17,9 @@ export class DatabaseService implements OnModuleInit{
             const options = getTypeOrmConfig(this.configService);
             this.dataSource = new DataSource(options)
             await this.dataSource.initialize();
-            console.log('Conexão com o banco Oracle estabelecida com sucesso!')
+            console.log('Conexão com o banco estabelecida com sucesso!')
         } catch(error) {
-            console.error('Falha ao conectar ao banco Oracle:', error)
+            console.error('Falha ao conectar ao banco:', error)
         }
     }
 
