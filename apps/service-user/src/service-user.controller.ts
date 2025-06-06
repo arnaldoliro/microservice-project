@@ -43,11 +43,57 @@ export class ServiceUserController {
         throw new InternalServerErrorException('Não foi possivel criar o usuário')
       }
 
+      console.log('Usuário criado com sucesso!', userCreated)
+
       return userCreated
 
     }catch(error) {
       console.log(error)
       throw new InternalServerErrorException()
+    }
+  }
+
+  @MessagePattern({cmd: 'put-user'})
+  async updateUser(data) {
+    try {
+      if(!data || !data.email || !data.name || !data.password || !data.matricula) {
+        console.log('Parametros Não Informados Corretamente')
+        throw new BadGatewayException('Parametros não informados')
+      }
+
+      const matricula = data.matricula;
+      
+      const user = await this.userService.findUserByMatricula(matricula);
+
+      if(user === null) {
+        console.log('Usuário não possui cadastro')
+        throw new ConflictException('Usuário não possui uma conta')
+      }
+
+      if(data.name === user.nome && data.email === user.email && data.password === user.senha) {
+        console.log('Os dados estão iguais')
+        throw new ConflictException('Dados iguais')
+      }
+
+      const updatedUser = await this.userService.updateUser(data)
+
+      console.log('Usuário atualizado com sucesso!', updatedUser)
+
+      return updatedUser
+
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException('Falha ao atualizar usuário')
+    }
+  }
+
+  @MessagePattern({cmd: 'delete-user'})
+  async delete(data) {
+    try {
+      
+    } catch (error) {
+      console.error(error)
+      throw new InternalServerErrorException('Não foi possivel deletar o usuário')
     }
   }
 }
