@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Inject, Post, Put } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices'
+import { CreateFileDto } from 'apps/file-system/src/dto/create-file.dto';
 import { CreateUserDto } from 'apps/service-user/dto/create-user.dto';
 import { lastValueFrom } from 'rxjs';
 
@@ -57,8 +58,8 @@ export class AppController {
 
   // Rotas do Sistema de Arquivos
   @Post('upload')
-  async upload(@Body() body: any) {
-    return this.fileService.send({ cmd: 'upload-file' }, body);
+  async upload(@Body() createFileDto: CreateFileDto) {
+    return this.fileService.send({ cmd: 'upload-file' }, createFileDto);
   }
 
   @Get('/files')

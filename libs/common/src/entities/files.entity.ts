@@ -8,6 +8,15 @@ export class File {
   @Column()
   nome: string;
 
+  @Column({ nullable: true })
+  descricao?: string;
+
+  @Column()
+  categoria: string;
+
+  @Column()
+  lotacao: string;
+
   @Column({ type: 'bytea' })
   conteudo: Buffer;
 

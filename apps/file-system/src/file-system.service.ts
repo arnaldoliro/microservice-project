@@ -11,13 +11,8 @@ export class FileSystemService {
     private readonly fileRepo: Repository<File>,
   ) {}
 
-  async uploadFile(dto: CreateFileDto) {
-    const novo = this.fileRepo.create({
-      nome: dto.nome,
-      conteudo: Buffer.from(dto.conteudo, 'base64'),
-    });
-
-    return await this.fileRepo.save(novo);
+  async uploadFile(file: File) {
+    return await this.fileRepo.save(file);
   }
 
   async listFile() {
@@ -27,3 +22,4 @@ export class FileSystemService {
     });
   }
 }
+
