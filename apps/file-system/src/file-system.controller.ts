@@ -12,7 +12,7 @@ export class FileSystemController {
     return this.fileSystemService.uploadFile(data);
   }
 
-  @MessagePattern({ cmd: 'list-file' })
+  @MessagePattern({ cmd: 'list-files' })
   async list() {
     return this.fileSystemService.listFile();
   }

@@ -8,7 +8,7 @@ export class AppController {
   constructor(
     @Inject('USER_SERVICE') private readonly userServiceClient: ClientProxy,
     @Inject('AUTH_SERVICE') private readonly authServiceClient: ClientProxy,
-    @Inject('FILE_SYSTEM_SERVICE') private readonly fileService: ClientProxy
+    @Inject('FILE_SYSTEM') private readonly fileService: ClientProxy
   ) {}
 
   // Rotas do usuário
@@ -61,7 +61,7 @@ export class AppController {
     return this.fileService.send({ cmd: 'upload-file' }, body);
   }
 
-  @Get()
+  @Get('/files')
   async listar() {
     return this.fileService.send({ cmd: 'list-files' }, {});
   }
