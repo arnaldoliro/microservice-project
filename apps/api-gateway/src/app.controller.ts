@@ -7,9 +7,11 @@ import { lastValueFrom } from 'rxjs';
 export class AppController {
   constructor(
     @Inject('USER_SERVICE') private readonly userServiceClient: ClientProxy,
-    @Inject('AUTH_SERVICE') private readonly authServiceClient: ClientProxy
+    @Inject('AUTH_SERVICE') private readonly authServiceClient: ClientProxy,
+    @Inject('FILE_SYSTEM_SERVICE') private readonly fileService: ClientProxy
   ) {}
 
+  // Rotas do usuário
   @Get('/users')
   async getUsers() {
     console.log('Rota /users acessada');
@@ -51,5 +53,16 @@ export class AppController {
       message: 'Usuário deletado com sucesso!',
       data: user
     }
+  }
+
+  // Rotas do Sistema de Arquivos
+  @Post('upload')
+  async upload(@Body() body: any) {
+    return this.fileService.send({ cmd: 'upload-file' }, body);
+  }
+
+  @Get()
+  async listar() {
+    return this.fileService.send({ cmd: 'list-files' }, {});
   }
 }
