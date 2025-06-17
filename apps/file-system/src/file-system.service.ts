@@ -17,7 +17,7 @@ export class FileSystemService {
 
   async listFile() {
     return await this.fileRepo.find({
-      select: ['id', 'nome', 'criadoEm'],
+      select: ['id', 'nome', 'descricao', 'categoria', 'lotacao', 'criadoEm'],
       order: { criadoEm: 'DESC' },
     });
   }

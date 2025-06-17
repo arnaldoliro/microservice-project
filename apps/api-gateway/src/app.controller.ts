@@ -57,7 +57,7 @@ export class AppController {
   }
 
   // Rotas do Sistema de Arquivos
-  @Post('upload')
+  @Post('/upload')
   async upload(@Body() createFileDto: CreateFileDto) {
     return this.fileService.send({ cmd: 'upload-file' }, createFileDto);
   }
