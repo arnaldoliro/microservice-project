@@ -1,8 +1,38 @@
+// import { Global, Module } from '@nestjs/common';
+// import { DatabaseService } from './database.service';
+// import { ConfigModule } from '@nestjs/config';
+
+// @Global()
+// @Module({
+//   imports: [ConfigModule],
+//   providers: [DatabaseService],
+//   exports: [DatabaseService],
+// })
+// export class DatabaseModule {}
+
+
+// Conexão com ferramentes do @nestjs
 import { Module } from '@nestjs/common';
-import { DatabaseService } from './database.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
-  providers: [DatabaseService],
-  exports: [DatabaseService],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'postgres',
+        host: config.get('DB_HOST'),
+        port: config.get<number>('DB_PORT'),
+        username: config.get('DB_USERNAME'),
+        password: config.get('DB_PASSWORD'),
+        database: config.get('DB_NAME'),
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
+    }),
+  ],
 })
 export class DatabaseModule {}

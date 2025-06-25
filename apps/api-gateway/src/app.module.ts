@@ -25,7 +25,15 @@ import { AppController } from './app.controller';
           host: process.env.HOST,
           port: Number(process.env.AUTH_SERVICE_PORT),
         },
-      }
+      },
+      {
+        name: 'FILE_SYSTEM',
+        transport: Transport.TCP,
+        options: {
+          host: process.env.HOST,
+          port: Number(process.env.FILE_SYSTEM_PORT)
+        }
+      },
     ])
   ],
   controllers: [AppController],

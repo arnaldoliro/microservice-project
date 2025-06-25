@@ -38,6 +38,15 @@
         "tsConfigPath": "libs/database/tsconfig.lib.json"
       }
     },
+    "file-system": {
+      "type": "application",
+      "root": "apps/file-system",
+      "entryFile": "main",
+      "sourceRoot": "apps/file-system/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/file-system/tsconfig.app.json"
+      }
+    },
     "service-auth": {
       "type": "application",
       "root": "apps/service-auth",
