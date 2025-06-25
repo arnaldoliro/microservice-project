@@ -1,8 +1,8 @@
-import { Body, Controller, Delete, Get, Inject, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, InternalServerErrorException, Post, Put, Query } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices'
 import { CreateFileDto } from 'apps/file-system/src/dto/create-file.dto';
 import { CreateUserDto } from 'apps/service-user/dto/create-user.dto';
-import { lastValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 @Controller()
 export class AppController {
@@ -63,7 +63,28 @@ export class AppController {
   }
 
   @Get('/files')
-  async listar() {
-    return this.fileService.send({ cmd: 'list-files' }, {});
+  async listar(
+    @Query('search') search?: string,
+    @Query('category') category?: string,
+    @Query('date') date?: string,
+  ) {
+    const payload: Record<string, any> = {}
+
+    if (search?.trim()) payload.search = search.trim()
+    if (category && category !== "" && category !== "Todas as categorias") payload.category = category
+    if (date && !isNaN(Date.parse(date))) payload.date = date
+
+    console.log('[Gateway] Enviando para microserviço:', payload)
+
+    try {
+      const result = await firstValueFrom(
+        this.fileService.send({ cmd: 'list-files' }, payload)
+      )
+
+      return result // <- finalmente envia ao frontend com status 200
+    } catch (err) {
+      console.error('[Gateway] Erro ao chamar microserviço:', err)
+      throw new InternalServerErrorException('Erro ao buscar arquivos')
+    }
   }
 }

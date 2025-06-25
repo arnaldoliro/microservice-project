@@ -1,10 +1,11 @@
-import { Controller, BadRequestException } from '@nestjs/common';
+import { Controller, BadRequestException, Query } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { FileSystemService } from './file-system.service';
 import { CreateFileDto } from './dto/create-file.dto';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { File } from '../../../libs/common/src/entities/files.entity';
+import { Between, ILike, FindOptionsWhere } from 'typeorm';
 
 @Controller()
 export class FileSystemController {
@@ -34,7 +35,56 @@ export class FileSystemController {
   }
 
   @MessagePattern({ cmd: 'list-files' })
-  async list() {
-    return this.fileSystemService.listFile();
+  async list(@Payload() data: { search?: string; category?: string; date?: string }) {
+    const { search, category, date } = data;
+
+    console.log("[Microserviço] Payload recebido:", data);
+
+    let where: FindOptionsWhere<File>[] = [];
+
+    if (search) {
+      const searchConditions: FindOptionsWhere<File>[] = [
+        { nome: ILike(`%${search}%`) },
+        { descricao: ILike(`%${search}%`) },
+      ];
+
+      where = searchConditions.map((cond) => {
+        const obj: FindOptionsWhere<File> = { ...cond };
+        if (category) obj.categoria = category;
+        if (date) {
+          const start = new Date(`${date}T00:00:00`);
+          const end = new Date(`${date}T23:59:59`);
+          obj.criadoEm = Between(start, end);
+        }
+        return obj;
+      });
+    } else {
+      const obj: FindOptionsWhere<File> = {};
+      if (category) obj.categoria = category;
+      if (date) {
+        const start = new Date(`${date}T00:00:00`);
+        const end = new Date(`${date}T23:59:59`);
+
+        console.log("[Filtro de data] Início:", start.toISOString());
+        console.log("[Filtro de data] Fim:", end.toISOString());
+        
+        obj.criadoEm = Between(start, end);
+      }
+      where = [obj];
+    }
+
+    console.log("[Microserviço] WHERE final:", JSON.stringify(where, null, 2));
+
+    const result = await this.fileSystemService.searchFile(where);
+
+    console.log(`[Microserviço] Retornando ${result.length} arquivos`);
+
+    return result;
+  }
+
+
+  @MessagePattern({ cmd: 'delete-files' })
+  async delete() {
+    return this.fileSystemService.deleteFile();
   }
 }
