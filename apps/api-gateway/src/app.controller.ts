@@ -67,8 +67,13 @@ export class AppController {
     @Query('search') search?: string,
     @Query('category') category?: string,
     @Query('date') date?: string,
-  ) {
-    const payload: Record<string, any> = {}
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ){
+    const payload: Record<string, any> = {
+      page: Number(page),
+      limit: Number(limit),
+    }
 
     if (search?.trim()) payload.search = search.trim()
     if (category && category !== "" && category !== "Todas as categorias") payload.category = category
@@ -81,7 +86,7 @@ export class AppController {
         this.fileService.send({ cmd: 'list-files' }, payload)
       )
 
-      return result // <- finalmente envia ao frontend com status 200
+      return result
     } catch (err) {
       console.error('[Gateway] Erro ao chamar microserviço:', err)
       throw new InternalServerErrorException('Erro ao buscar arquivos')

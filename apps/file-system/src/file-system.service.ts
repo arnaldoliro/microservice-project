@@ -23,14 +23,16 @@ export class FileSystemService {
   });
   }
 
- async searchFile(whereClause: FindOptionsWhere<File>[]) {
+ async searchFile(whereClause: FindOptionsWhere<File>[], skip: number, limit: number) {
   return await this.fileRepo.find({
     where: whereClause,
     select: ['id', 'nome', 'descricao', 'categoria', 'lotacao', 'criadoEm'],
     order: { criadoEm: 'DESC' },
-    take: 100, // Também limita a 100 resultados filtrados
+    skip,
+    take: limit,
   });
 }
+
   async findOneFile(file: File) {
     return await this.fileRepo.findOne({where: { nome: file.nome }})
   }
