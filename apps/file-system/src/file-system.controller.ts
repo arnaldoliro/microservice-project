@@ -36,10 +36,8 @@ export class FileSystemController {
 
   @MessagePattern({ cmd: 'list-files' })
   async list(@Payload() data: { search?: string; category?: string; date?: string; page?: number; limit?: number }) {
-    const { search, category, date } = data;
-    const page = Number(data.page) || 1
-    const limit = Number(data.limit) || 10
-    const skip = (page - 1) * limit
+    const { search, category, date, page = 1, limit = 10 } = data;
+    const skip = (page - 1) * limit;
 
     console.log("[Microserviço] Payload recebido:", data);
 

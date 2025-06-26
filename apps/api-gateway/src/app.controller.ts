@@ -71,8 +71,8 @@ export class AppController {
     @Query('limit') limit = 10,
   ){
     const payload: Record<string, any> = {
-      page: Number(page) || 1,
-      limit: Number(limit) || 10,
+      page: Number(page),
+      limit: Number(limit),
     }
 
     if (search?.trim()) payload.search = search.trim()
