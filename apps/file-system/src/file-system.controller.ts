@@ -35,8 +35,11 @@ export class FileSystemController {
   }
 
   @MessagePattern({ cmd: 'list-files' })
-  async list(@Payload() data: { search?: string; category?: string; date?: string }) {
+  async list(@Payload() data: { search?: string; category?: string; date?: string; page?: number; limit?: number }) {
     const { search, category, date } = data;
+    const page = Number(data.page) || 1
+    const limit = Number(data.limit) || 10
+    const skip = (page - 1) * limit
 
     console.log("[Microserviço] Payload recebido:", data);
 
@@ -64,10 +67,6 @@ export class FileSystemController {
       if (date) {
         const start = new Date(`${date}T00:00:00`);
         const end = new Date(`${date}T23:59:59`);
-
-        console.log("[Filtro de data] Início:", start.toISOString());
-        console.log("[Filtro de data] Fim:", end.toISOString());
-        
         obj.criadoEm = Between(start, end);
       }
       where = [obj];
@@ -75,12 +74,13 @@ export class FileSystemController {
 
     console.log("[Microserviço] WHERE final:", JSON.stringify(where, null, 2));
 
-    const result = await this.fileSystemService.searchFile(where);
+    const result = await this.fileSystemService.searchFile(where, skip, limit);
 
     console.log(`[Microserviço] Retornando ${result.length} arquivos`);
 
     return result;
   }
+
 
 
   @MessagePattern({ cmd: 'delete-files' })
