@@ -1,4 +1,4 @@
-import { Controller, BadRequestException, Query } from '@nestjs/common';
+import { Controller, BadRequestException, Query, NotFoundException } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { FileSystemService } from './file-system.service';
 import { CreateFileDto } from './dto/create-file.dto';
@@ -85,4 +85,17 @@ export class FileSystemController {
   async delete() {
     return this.fileSystemService.deleteFile();
   }
+
+  @MessagePattern({ cmd: 'download-arquivo' })
+  async downloadArquivo(@Payload() id: number) {
+    const file = await this.fileSystemService.findOneFile(id)
+    if (!file) throw new NotFoundException('Arquivo não encontrado')
+
+    return {
+      nome: file.nome,
+      conteudo: file.conteudo.toString('base64'), 
+      mimeType: 'application/octet-stream'
+    };
+}
+
 }

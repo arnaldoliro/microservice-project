@@ -33,8 +33,8 @@ export class FileSystemService {
   });
 }
 
-  async findOneFile(file: File) {
-    return await this.fileRepo.findOne({where: { nome: file.nome }})
+  async findOneFile(id: number) {
+    return await this.fileRepo.findOne({where: { id: id }})
   }
 
   async deleteFile() {
