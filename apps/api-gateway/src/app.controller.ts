@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Inject, InternalServerErrorException, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, InternalServerErrorException, NotFoundException, Param, Post, Put, Query, Res, StreamableFile } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices'
 import { CreateFileDto } from 'apps/file-system/src/dto/create-file.dto';
 import { CreateUserDto } from 'apps/service-user/dto/create-user.dto';
@@ -92,4 +92,23 @@ export class AppController {
       throw new InternalServerErrorException('Erro ao buscar arquivos')
     }
   }
+
+  @Get('/files/:id/download')
+  async download(@Param('id') id: string): Promise<StreamableFile> {
+    const response = await firstValueFrom(
+      this.fileService.send({ cmd: 'download-arquivo' }, +id)
+    );
+
+    if (!response?.conteudo) {
+      throw new NotFoundException('Arquivo não encontrado');
+    }
+
+    const buffer = Buffer.from(response.conteudo, 'base64');
+
+    return new StreamableFile(buffer, {
+      type: response.mimeType || 'application/octet-stream',
+      disposition: `attachment; filename="${response.nome}"`,
+    });
+  }
 }
+
