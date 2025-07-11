@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { File } from '../../../libs/common/src/entities/files.entity';
 import { FindOptionsWhere, Repository } from 'typeorm';
@@ -15,12 +15,12 @@ export class FileSystemService {
     return await this.fileRepo.save(file);
   }
 
-    async listFile() {
-      return await this.fileRepo.find({
-    select: ['id', 'nome', 'descricao', 'categoria', 'lotacao', 'criadoEm'],
-    order: { criadoEm: 'DESC' },
-    take: 100,
-  });
+  async listFile() {
+    return await this.fileRepo.find({
+      select: ['id', 'nome', 'descricao', 'categoria', 'lotacao', 'criadoEm'],
+      order: { criadoEm: 'DESC' },
+      take: 100,
+    });
   }
 
  async searchFile(whereClause: FindOptionsWhere<File>[], skip: number, limit: number) {
@@ -33,14 +33,21 @@ export class FileSystemService {
   });
 }
 
-  async findOneFile(id: number) {
+  async findOneFile(id: number) { 
     return await this.fileRepo.findOne({where: { id: id }})
   }
 
-  async deleteFile() {
-    return await this.fileRepo.delete({
-      
-    })
+  async deleteFile(id: number) {
+    const deletedFiles = await this.fileRepo.delete(id)
+    if(deletedFiles.affected === 0) {
+      throw new NotFoundException(`Arquivod com id ${id} não encontrado`)
+    }
+    return { message: 'Arquivo deletado com sucesso' };
+  }
+
+  async deleteAllFiles() {
+    await this.fileRepo.clear()
+    return { message: 'Arquivos deletados com sucesso' };
   }
 }
 

@@ -1,8 +1,10 @@
-import { Body, Controller, Delete, Get, Inject, InternalServerErrorException, NotFoundException, Param, Post, Put, Query, Res, StreamableFile } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, InternalServerErrorException, NotFoundException, Param, Post, Put, Query, Res } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices'
 import { CreateFileDto } from 'apps/file-system/src/dto/create-file.dto';
 import { CreateUserDto } from 'apps/service-user/dto/create-user.dto';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
+import { Response } from 'express';
+import mime from 'mime';
 
 @Controller()
 export class AppController {
@@ -94,7 +96,7 @@ export class AppController {
   }
 
   @Get('/files/:id/download')
-  async download(@Param('id') id: string): Promise<StreamableFile> {
+  async download(@Param('id') id: number, @Res() res: Response): Promise<void> {
     const response = await firstValueFrom(
       this.fileService.send({ cmd: 'download-arquivo' }, +id)
     );
@@ -104,11 +106,34 @@ export class AppController {
     }
 
     const buffer = Buffer.from(response.conteudo, 'base64');
+    const mimeType = response.mimeType || 'application/octet-stream';
 
-    return new StreamableFile(buffer, {
-      type: response.mimeType || 'application/octet-stream',
-      disposition: `attachment; filename="${response.nome}"`,
-    });
+    let fileName = response.nome;
+    if (!fileName.includes('.')) {
+      const ext = mime.extension(mimeType);
+      if (ext) fileName += '.' + ext;
+    }
+
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+
+    res.send(buffer);
+  }
+
+  @Delete('files/:id')
+  async deleteOneFile(@Param('id') id: string){
+    const response = await firstValueFrom(
+      this.fileService.send({ cmd: 'delete-files'}, +id)
+    )
+    return response
+  }
+
+  @Delete('files')
+  async deleteAllFiles(){
+    const response = await firstValueFrom(
+      this.fileService.send({cmd: 'delete-all-files'}, {})
+    )
+    return response
   }
 }
 

@@ -6,6 +6,7 @@ import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { File } from '../../../libs/common/src/entities/files.entity';
 import { Between, ILike, FindOptionsWhere } from 'typeorm';
+import * as mime from 'mime-types';
 
 @Controller()
 export class FileSystemController {
@@ -28,6 +29,8 @@ export class FileSystemController {
     fileEntity.nome = dto.nome;
     fileEntity.descricao = dto.descricao;
     fileEntity.categoria = dto.categoria;
+    fileEntity.originalFileName = dto.originalFileName;
+    fileEntity.mimeType = dto.mimeType;
     fileEntity.lotacao = dto.lotacao;
     fileEntity.conteudo = Buffer.from(dto.conteudo, 'base64');
 
@@ -82,20 +85,38 @@ export class FileSystemController {
 
 
   @MessagePattern({ cmd: 'delete-files' })
-  async delete() {
-    return this.fileSystemService.deleteFile();
+  async delete(id: number) {
+    try {
+      const deletedFile = await this.fileSystemService.deleteFile(id)
+      return {succces: true, message: `Arquivo deletado com sucesso! ${deletedFile}`}
+    } catch (err) {
+      console.error(err)
+      return {succces: false, message: `Erro interno do servidor: ${err}`}
+    }
+  }
+
+  @MessagePattern({ cmd: 'delete-all-files'})
+  async deleteAll() {
+    try {
+      return await this.fileSystemService.deleteAllFiles()
+    } catch(err) {
+      console.log(err)
+      return {succes: false, message: `Erro interno do servidor: ${err}`}
+    }
   }
 
   @MessagePattern({ cmd: 'download-arquivo' })
-  async downloadArquivo(@Payload() id: number) {
-    const file = await this.fileSystemService.findOneFile(id)
-    if (!file) throw new NotFoundException('Arquivo não encontrado')
+    async downloadArquivo(@Payload() id: number) {
+    const file = await this.fileSystemService.findOneFile(id);
+
+    if (!file) throw new NotFoundException('Arquivo não encontrado');
+
+    const mimeType = mime.lookup(file.originalFileName) || 'application/octet-stream';
 
     return {
-      nome: file.nome,
-      conteudo: file.conteudo.toString('base64'), 
-      mimeType: 'application/octet-stream'
+      nome: file.originalFileName,
+      conteudo: file.conteudo.toString('base64'),
+      mimeType,
     };
-}
-
+  }
 }
