@@ -28,4 +28,7 @@ export class File {
 
   @Column({ nullable: true })
   mimeType?: string;
+
+  @Column({ default: false})
+  fixado: boolean;
 }

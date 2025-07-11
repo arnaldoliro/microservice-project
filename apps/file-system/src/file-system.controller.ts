@@ -101,7 +101,7 @@ export class FileSystemController {
       return await this.fileSystemService.deleteAllFiles()
     } catch(err) {
       console.log(err)
-      return {succes: false, message: `Erro interno do servidor: ${err}`}
+      return {success: false, message: `Erro interno do servidor: ${err}`}
     }
   }
 
@@ -119,4 +119,27 @@ export class FileSystemController {
       mimeType,
     };
   }
+
+  @MessagePattern({cmd: 'fix-files'})
+    async fixFiles(@Payload() id: number) {
+      try{
+        const file = await this.fileSystemService.findOneFile(id)
+
+      if(!file) {
+        throw new NotFoundException('Arquivo não encontrado!')
+      }
+
+      console.log('O file existe', file)
+
+      let fixedFile = !file.fixado
+
+      console.log(`O valor de do file: ${file.fixado} sempre vai ser ao contrario fixedFile: ${fixedFile}`)
+      
+      return this.fileSystemService.fixFile(id, fixedFile)
+ 
+      } catch(err) {
+        console.log(err)
+        return {success: false, message: "Falha Interna do Servidor"}
+      }
+    }
 }

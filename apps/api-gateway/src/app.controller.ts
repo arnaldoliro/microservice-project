@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Inject, InternalServerErrorException, NotFoundException, Param, Post, Put, Query, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, InternalServerErrorException, NotFoundException, Param, Patch, Post, Put, Query, Res } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices'
 import { CreateFileDto } from 'apps/file-system/src/dto/create-file.dto';
 import { CreateUserDto } from 'apps/service-user/dto/create-user.dto';
@@ -132,6 +132,14 @@ export class AppController {
   async deleteAllFiles(){
     const response = await firstValueFrom(
       this.fileService.send({cmd: 'delete-all-files'}, {})
+    )
+    return response
+  }
+  
+  @Patch('files/:id/fix')
+  async fixFile(@Param('id') id: number) {
+    const response = await firstValueFrom(
+      this.fileService.send({ cmd: 'fix-files'}, +id)
     )
     return response
   }

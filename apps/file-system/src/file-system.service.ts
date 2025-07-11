@@ -49,5 +49,13 @@ export class FileSystemService {
     await this.fileRepo.clear()
     return { message: 'Arquivos deletados com sucesso' };
   }
+
+  async fixFile(id, fixedFile){
+    console.log('Entrando no service')
+    await this.fileRepo.update(id, {fixado: fixedFile})
+    console.log('Salvo com sucesso')
+
+    return { message: 'Arquivo salvo com sucesso!', fixedFile}
+  }
 }
 

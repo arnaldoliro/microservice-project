@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsBase64, IsOptional, isNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsString, IsBase64, IsOptional, isNotEmpty, IsBoolean } from 'class-validator';
 
 export class CreateFileDto {
   @IsNotEmpty({ message: 'O nome é obrigatório' })
@@ -27,4 +27,8 @@ export class CreateFileDto {
 
   @IsOptional()
   mimeType?: string;
+
+  @IsNotEmpty({ message: 'O status de fixado precisa existir'})
+  @IsBoolean()
+  fixado: string
 }
