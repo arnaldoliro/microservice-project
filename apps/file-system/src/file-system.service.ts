@@ -26,7 +26,7 @@ export class FileSystemService {
  async searchFile(whereClause: FindOptionsWhere<File>[], skip: number, limit: number) {
   return await this.fileRepo.find({
     where: whereClause,
-    select: ['id', 'nome', 'descricao', 'categoria', 'lotacao', 'criadoEm'],
+    select: ['id', 'nome', 'descricao', 'categoria', 'lotacao', 'criadoEm', 'fixado'],
     order: { criadoEm: 'DESC' },
     skip,
     take: limit,

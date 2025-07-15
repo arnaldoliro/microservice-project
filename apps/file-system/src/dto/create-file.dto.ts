@@ -30,5 +30,5 @@ export class CreateFileDto {
 
   @IsNotEmpty({ message: 'O status de fixado precisa existir'})
   @IsBoolean()
-  fixado: string
+  isPinned: boolean
 }
