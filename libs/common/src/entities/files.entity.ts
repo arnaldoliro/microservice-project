@@ -15,6 +15,9 @@ export class File {
   categoria: string;
 
   @Column()
+  originalFileName: string;
+
+  @Column()
   lotacao: string;
 
   @Column({ type: 'bytea' })
@@ -22,4 +25,10 @@ export class File {
 
   @CreateDateColumn()
   criadoEm: Date;
+
+  @Column({ nullable: true })
+  mimeType?: string;
+
+  @Column({ default: false})
+  fixado: boolean;
 }

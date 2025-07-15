@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsBase64, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsBase64, IsOptional, isNotEmpty, IsBoolean } from 'class-validator';
 
 export class CreateFileDto {
   @IsNotEmpty({ message: 'O nome é obrigatório' })
@@ -13,6 +13,10 @@ export class CreateFileDto {
   @IsString({ message: 'A categoria deve ser uma string' })
   categoria: string;
 
+  @IsNotEmpty({ message: 'O nome original é obrigatório' })
+  @IsString({ message: 'O nome original deve ser uma string' })
+  originalFileName: string;
+
   @IsNotEmpty({ message: 'A lotação é obrigatória' })
   @IsString({ message: 'A lotação deve ser uma string' })
   lotacao: string;
@@ -20,4 +24,11 @@ export class CreateFileDto {
   @IsNotEmpty({ message: 'O conteúdo do arquivo é obrigatório' })
   @IsBase64()
   conteudo: string;
+
+  @IsOptional()
+  mimeType?: string;
+
+  @IsNotEmpty({ message: 'O status de fixado precisa existir'})
+  @IsBoolean()
+  isPinned: boolean
 }

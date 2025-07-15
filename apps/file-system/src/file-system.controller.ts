@@ -6,6 +6,7 @@ import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { File } from '../../../libs/common/src/entities/files.entity';
 import { Between, ILike, FindOptionsWhere } from 'typeorm';
+import * as mime from 'mime-types';
 
 @Controller()
 export class FileSystemController {
@@ -28,8 +29,11 @@ export class FileSystemController {
     fileEntity.nome = dto.nome;
     fileEntity.descricao = dto.descricao;
     fileEntity.categoria = dto.categoria;
+    fileEntity.originalFileName = dto.originalFileName;
+    fileEntity.mimeType = dto.mimeType;
     fileEntity.lotacao = dto.lotacao;
     fileEntity.conteudo = Buffer.from(dto.conteudo, 'base64');
+    fileEntity.fixado = dto.isPinned
 
     return this.fileSystemService.uploadFile(fileEntity);
   }
@@ -39,7 +43,7 @@ export class FileSystemController {
     const { search, category, date, page = 1, limit = 10 } = data;
     const skip = (page - 1) * limit;
 
-    console.log("[Microserviço] Payload recebido:", data);
+    // console.log("[Microserviço] Payload recebido:", data);
 
     let where: FindOptionsWhere<File>[] = [];
 
@@ -70,11 +74,12 @@ export class FileSystemController {
       where = [obj];
     }
 
-    console.log("[Microserviço] WHERE final:", JSON.stringify(where, null, 2));
+    // console.log("[Microserviço] WHERE final:", JSON.stringify(where, null, 2));
 
     const result = await this.fileSystemService.searchFile(where, skip, limit);
 
-    console.log(`[Microserviço] Retornando ${result.length} arquivos`);
+    // console.log(`[Microserviço] Retornando ${result.length} arquivos`);
+    // console.log(`[Microserviço] Resultado: ${JSON.stringify(result, null, 2)}`);
 
     return result;
   }
@@ -82,20 +87,64 @@ export class FileSystemController {
 
 
   @MessagePattern({ cmd: 'delete-files' })
-  async delete() {
-    return this.fileSystemService.deleteFile();
+  async delete(id: number) {
+    try {
+      const deletedFile = await this.fileSystemService.deleteFile(id)
+      return {succces: true, message: `Arquivo deletado com sucesso! ${deletedFile}`}
+    } catch (err) {
+      console.error(err)
+      return {succces: false, message: `Erro interno do servidor: ${err}`}
+    }
+  }
+
+  @MessagePattern({ cmd: 'delete-all-files'})
+  async deleteAll() {
+    try {
+      return await this.fileSystemService.deleteAllFiles()
+    } catch(err) {
+      console.log(err)
+      return {success: false, message: `Erro interno do servidor: ${err}`}
+    }
   }
 
   @MessagePattern({ cmd: 'download-arquivo' })
-  async downloadArquivo(@Payload() id: number) {
-    const file = await this.fileSystemService.findOneFile(id)
-    if (!file) throw new NotFoundException('Arquivo não encontrado')
+    async downloadArquivo(@Payload() id: number) {
+    const file = await this.fileSystemService.findOneFile(id);
+
+    if (!file) throw new NotFoundException('Arquivo não encontrado');
+
+    const mimeType = mime.lookup(file.originalFileName) || 'application/octet-stream';
 
     return {
-      nome: file.nome,
-      conteudo: file.conteudo.toString('base64'), 
-      mimeType: 'application/octet-stream'
+      nome: file.originalFileName,
+      conteudo: file.conteudo.toString('base64'),
+      mimeType,
     };
-}
+  }
 
+  @MessagePattern({cmd: 'fix-files'})
+    async fixFiles(@Payload() id: number) {
+      try{
+        // console.log('Rota acionada...')
+        // console.log(`Payload recebido: ${data}`)
+
+        const file = await this.fileSystemService.findOneFile(id)
+
+      if(!file) {
+        throw new NotFoundException('Arquivo não encontrado!')
+      }
+
+      // console.log('O file existe', file)
+
+      let fixedFile = !file.fixado
+
+      // console.log(`O valor de do file: ${file.fixado} sempre vai ser ao contrario fixedFile: ${fixedFile}`)
+      
+      return this.fileSystemService.fixFile(id, fixedFile)
+ 
+      } catch(err) {
+        console.log(err)
+        return {success: false, message: "Falha Interna do Servidor"}
+      }
+    }
 }
