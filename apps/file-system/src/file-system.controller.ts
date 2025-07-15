@@ -78,8 +78,8 @@ export class FileSystemController {
 
     const result = await this.fileSystemService.searchFile(where, skip, limit);
 
-    console.log(`[Microserviço] Retornando ${result.length} arquivos`);
-    console.log(`[Microserviço] Resultado: ${JSON.stringify(result, null, 2)}`);
+    // console.log(`[Microserviço] Retornando ${result.length} arquivos`);
+    // console.log(`[Microserviço] Resultado: ${JSON.stringify(result, null, 2)}`);
 
     return result;
   }
@@ -125,7 +125,7 @@ export class FileSystemController {
   @MessagePattern({cmd: 'fix-files'})
     async fixFiles(@Payload() id: number) {
       try{
-        console.log('Rota acionada...')
+        // console.log('Rota acionada...')
         // console.log(`Payload recebido: ${data}`)
 
         const file = await this.fileSystemService.findOneFile(id)
@@ -134,11 +134,11 @@ export class FileSystemController {
         throw new NotFoundException('Arquivo não encontrado!')
       }
 
-      console.log('O file existe', file)
+      // console.log('O file existe', file)
 
       let fixedFile = !file.fixado
 
-      console.log(`O valor de do file: ${file.fixado} sempre vai ser ao contrario fixedFile: ${fixedFile}`)
+      // console.log(`O valor de do file: ${file.fixado} sempre vai ser ao contrario fixedFile: ${fixedFile}`)
       
       return this.fileSystemService.fixFile(id, fixedFile)
  

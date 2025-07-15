@@ -114,8 +114,10 @@ export class AppController {
       if (ext) fileName += '.' + ext;
     }
 
+    console.log(`Baixando arquivo: ${fileName}, Tipo: ${mimeType}`);
+
     res.setHeader('Content-Type', mimeType);
-    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader('Content-Disposition', `attachment; filename=\"${fileName}\"`);
 
     res.send(buffer);
   }

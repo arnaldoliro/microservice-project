@@ -10,7 +10,6 @@ async function bootstrap() {
       port: 3005, 
     },
   });
-
   await app.listen();
   console.log('File System microservice running on TCP port 3005');
 }
