@@ -1,10 +1,12 @@
-import { Body, Controller, Delete, Get, Inject, InternalServerErrorException, NotFoundException, Param, Patch, Post, Put, Query, Res } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Inject, InternalServerErrorException, NotFoundException, Param, Patch, Post, Put, Query, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices'
 import { CreateFileDto } from 'apps/file-system/src/dto/create-file.dto';
 import { CreateUserDto } from 'apps/service-user/dto/create-user.dto';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { Response } from 'express';
 import mime from 'mime';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 
 @Controller()
 export class AppController {
@@ -59,9 +61,9 @@ export class AppController {
   }
 
   // Rotas do Sistema de Arquivos
-  @Post('/upload')
-  async upload(@Body() createFileDto: CreateFileDto) {
-    return this.fileService.send({ cmd: 'upload-file' }, createFileDto);
+ @Post('upload')
+  async upload(@Body() dto: CreateFileDto) {
+    return this.fileService.send({ cmd: 'upload-file' }, dto).toPromise();
   }
 
   @Get('/files')

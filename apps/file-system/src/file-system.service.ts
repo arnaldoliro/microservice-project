@@ -1,8 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { File } from '../../../libs/common/src/entities/files.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateFileDto } from './dto/create-file.dto';
+import { fileTypeFromBuffer } from 'file-type';
+import { RpcException } from '@nestjs/microservices';
+import isMimeTypeValidForCategory from './utils/validationCategory';
 
 @Injectable()
 export class FileSystemService {
@@ -11,8 +14,48 @@ export class FileSystemService {
     private readonly fileRepo: Repository<File>,
   ) {}
 
-  async uploadFile(file: File) {
-    return await this.fileRepo.save(file);
+  async uploadFile(dto: CreateFileDto) {
+    const categoriasValidas = ['documento', 'imagem', 'planilha', 'apresentação', 'outros'];
+    if (!categoriasValidas.includes(dto.categoria.toLowerCase())) {
+      throw new RpcException(`Categoria inválida: "${dto.categoria}". Categorias permitidas: ${categoriasValidas.join(', ')}`);
+    }
+
+    const buffer = Buffer.from(dto.conteudo, 'base64');
+    
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+    if (buffer.length > MAX_FILE_SIZE) {
+      throw new RpcException('Arquivo excede o tamanho máximo permitido de 10MB.');
+    }
+
+    // Detecta o tipo MIME real do conteúdo
+    const fileType = await fileTypeFromBuffer(buffer);
+    if (!fileType) {
+      throw new RpcException('Não foi possível detectar o tipo do arquivo.');
+    }
+
+    const realMime = fileType.mime;
+
+    // Valida se o tipo MIME bate com a categoria fornecida
+    if (!isMimeTypeValidForCategory(realMime, dto.categoria)) {
+      throw new RpcException(
+        `Tipo de arquivo (${realMime}) não é permitido para a categoria "${dto.categoria}".`
+      );
+    }
+
+    // Cria entidade para salvar no banco
+    const fileEntity = new File();
+    fileEntity.nome = dto.nome;
+    fileEntity.descricao = dto.descricao;
+    fileEntity.categoria = dto.categoria;
+    fileEntity.originalFileName = dto.originalFileName;
+    fileEntity.mimeType = realMime;
+    fileEntity.lotacao = dto.lotacao;
+    fileEntity.fixado = dto.isPinned;
+    fileEntity.conteudo = buffer;
+
+    // Salva e retorna
+    const saved = await this.fileRepo.save(fileEntity);
+    return this.fileRepo.findOne({ where: { id: saved.id } });
   }
 
   async listFile() {
@@ -23,15 +66,37 @@ export class FileSystemService {
     });
   }
 
- async searchFile(whereClause: FindOptionsWhere<File>[], skip: number, limit: number) {
-  return await this.fileRepo.find({
-    where: whereClause,
-    select: ['id', 'nome', 'descricao', 'categoria', 'lotacao', 'criadoEm', 'fixado'],
-    order: { criadoEm: 'DESC' },
-    skip,
-    take: limit,
-  });
-}
+  async searchFile(
+    filters: { search?: string; category?: string; date?: string; skip?: number; limit?: number }
+  ) {
+    const { search, category, date, skip = 0, limit = 10 } = filters;
+    const qb = this.fileRepo.createQueryBuilder('file');
+
+    if (search) {
+      qb.andWhere('(file.nome ILIKE :search OR file.descricao ILIKE :search)', { search: `%${search}%` });
+    }
+    if (category) {
+      qb.andWhere('file.categoria = :category', { category });
+    }
+    if (date) {
+      const start = new Date(`${date}T00:00:00`);
+      const end = new Date(`${date}T23:59:59`);
+      qb.andWhere('file.criadoEm BETWEEN :start AND :end', { start, end });
+    }
+    qb.orderBy('file.criadoEm', 'DESC');
+    qb.skip(skip);
+    qb.take(limit);
+    qb.select([
+      'file.id',
+      'file.nome',
+      'file.descricao',
+      'file.categoria',
+      'file.lotacao',
+      'file.criadoEm',
+      'file.fixado',
+    ]);
+    return qb.getMany();
+  }
 
   async findOneFile(id: number) { 
     return await this.fileRepo.findOne({where: { id: id }})

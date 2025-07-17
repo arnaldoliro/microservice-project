@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsNotEmpty, IsString, IsBase64, IsOptional, isNotEmpty, IsBoolean } from 'class-validator';
 
 export class CreateFileDto {
@@ -28,7 +29,8 @@ export class CreateFileDto {
   @IsOptional()
   mimeType?: string;
 
-  @IsNotEmpty({ message: 'O status de fixado precisa existir'})
-  @IsBoolean()
-  isPinned: boolean
+  @IsNotEmpty({ message: 'O status de fixado precisa existir' })
+  @IsBoolean({ message: 'O valor de fixado deve ser verdadeiro ou falso' })
+  @Type(() => Boolean)
+  isPinned: boolean;
 }
