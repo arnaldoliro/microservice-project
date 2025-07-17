@@ -63,7 +63,25 @@ export class AppController {
   // Rotas do Sistema de Arquivos
  @Post('upload')
   async upload(@Body() dto: CreateFileDto) {
-    return this.fileService.send({ cmd: 'upload-file' }, dto).toPromise();
+    try {
+      const result = await firstValueFrom(
+        this.fileService.send({ cmd: 'upload-file' }, dto)
+      );
+      return {
+        statusCode: 201,
+        message: 'Arquivo enviado com sucesso!',
+        data: result
+      };
+    } catch (error) {
+        const originalMessage =
+        error?.message || error?.response?.message || 'Erro Interno do servidor';
+
+        if (error?.status === 400 || error?.statusCode === 400) {
+          throw new BadRequestException(originalMessage);
+        }
+        
+        throw new InternalServerErrorException(originalMessage);
+    }
   }
 
   @Get('/files')
@@ -93,7 +111,11 @@ export class AppController {
       return result
     } catch (err) {
       console.error('[Gateway] Erro ao chamar microserviço:', err)
-      throw new InternalServerErrorException('Erro ao buscar arquivos')
+
+      const originalMessage =
+      err?.message || err?.response?.message || 'Erro Interno do servidor';
+
+      throw new InternalServerErrorException(originalMessage)
     }
   }
 

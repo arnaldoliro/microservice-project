@@ -38,7 +38,7 @@ export class FileSystemService {
     // Valida se o tipo MIME bate com a categoria fornecida
     if (!isMimeTypeValidForCategory(realMime, dto.categoria)) {
       throw new RpcException(
-        `Tipo de arquivo (${realMime}) não é permitido para a categoria "${dto.categoria}".`
+        `Tipo de arquivo não é permitido para a categoria ${dto.categoria}.`
       );
     }
 
