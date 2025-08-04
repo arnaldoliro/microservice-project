@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { File } from '../../../libs/common/src/entities/files.entity';
 import { Repository } from 'typeorm';
@@ -6,6 +6,7 @@ import { CreateFileDto } from './dto/create-file.dto';
 import { fileTypeFromBuffer } from 'file-type';
 import { RpcException } from '@nestjs/microservices';
 import isMimeTypeValidForCategory from './utils/validationCategory';
+import { UpdateFileDto } from './dto/update-file.dto';
 
 @Injectable()
 export class FileSystemService {
@@ -123,20 +124,18 @@ export class FileSystemService {
     return { message: 'Arquivo salvo com sucesso!', fixedFile}
   }
 
-  async updateFile(dto: CreateFileDto, id: number) {
+  async updateFile(dto: UpdateFileDto) {
     try {
-      const file = await this.fileRepo.findOne({ where: { id: dto.id } });
+      console.log('Entrando no service de update')
+      const file = await this.findOneFile(dto.id);
+      console.log('Arquivo encontrado:', file);
     if (!file) {
+      console.log('Arquivo não encontrado')
       throw new NotFoundException(`Arquivo com id ${dto.id} não encontrado`);
     }
 
     file.nome = dto.nome;
     file.descricao = dto.descricao;
-    file.categoria = dto.categoria;
-    file.originalFileName = dto.originalFileName;
-    file.mimeType = dto.mimeType;
-    file.lotacao = dto.lotacao;
-    file.fixado = dto.isPinned;
 
     await this.fileRepo.save(file);
     return file;

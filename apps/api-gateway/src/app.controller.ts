@@ -7,6 +7,7 @@ import { Response } from 'express';
 import mime from 'mime';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
+import { UpdateFileDto } from 'apps/file-system/src/dto/update-file.dto';
 
 @Controller()
 export class AppController {
@@ -170,10 +171,10 @@ export class AppController {
     return response
   }
 
-  @Patch('files/update')
-  async updateFile(@Body() dto: CreateFileDto, @Param('id') id: number) {
+  @Patch('files/update/')
+  async updateFile(@Body() dto: UpdateFileDto) {
     const response = await firstValueFrom(
-      this.fileService.send({ cmd: 'update-file' }, { ...dto, id })
+      this.fileService.send({ cmd: 'update-file' }, dto)
     )
     return response
   }

@@ -2,9 +2,9 @@ import { Controller, NotFoundException, UsePipes, ValidationPipe } from '@nestjs
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { FileSystemService } from './file-system.service';
 import { CreateFileDto } from './dto/create-file.dto';
+import { UpdateFileDto } from './dto/update-file.dto';
 
 import * as mime from 'mime-types';
-
 
 @Controller()
 export class FileSystemController {
@@ -91,7 +91,7 @@ export class FileSystemController {
     }
 
     @MessagePattern({ cmd: 'update-file' })
-    async updateFile(@Payload() id: number, dto: CreateFileDto) {
-      return this.fileSystemService.updateFile(dto, id);
+    async updateFile(@Payload() dto: UpdateFileDto) {
+      return this.fileSystemService.updateFile(dto);
     }
 }

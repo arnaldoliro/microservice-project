@@ -1,11 +1,11 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsString, IsBase64, IsOptional, isNotEmpty, IsBoolean } from 'class-validator';
+import { IsNotEmpty, IsString, IsBase64, IsOptional, isNotEmpty, IsBoolean, IsNumber } from 'class-validator';
 
-export class UpdatweFileDto {
-  @IsNotEmpty({ message: 'O ID do arquivo é obrigatório' })
-  @IsString({ message: 'O ID deve ser uma string' })
-  id: string;
-  
+export class UpdateFileDto {
+  @IsNotEmpty({message: 'O ID é obrigatório'})
+  @IsNumber()
+  id: number
+
   @IsNotEmpty({ message: 'O nome é obrigatório' })
   @IsString({ message: 'O nome deve ser uma string' })
   nome: string;
