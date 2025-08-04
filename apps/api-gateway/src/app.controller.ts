@@ -169,5 +169,13 @@ export class AppController {
     )
     return response
   }
+
+  @Patch('files/update')
+  async updateFile(@Body() dto: CreateFileDto, @Param('id') id: number) {
+    const response = await firstValueFrom(
+      this.fileService.send({ cmd: 'update-file' }, { ...dto, id })
+    )
+    return response
+  }
 }
 

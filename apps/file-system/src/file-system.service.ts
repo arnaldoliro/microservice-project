@@ -122,5 +122,27 @@ export class FileSystemService {
 
     return { message: 'Arquivo salvo com sucesso!', fixedFile}
   }
-}
 
+  async updateFile(dto: CreateFileDto, id: number) {
+    try {
+      const file = await this.fileRepo.findOne({ where: { id: dto.id } });
+    if (!file) {
+      throw new NotFoundException(`Arquivo com id ${dto.id} não encontrado`);
+    }
+
+    file.nome = dto.nome;
+    file.descricao = dto.descricao;
+    file.categoria = dto.categoria;
+    file.originalFileName = dto.originalFileName;
+    file.mimeType = dto.mimeType;
+    file.lotacao = dto.lotacao;
+    file.fixado = dto.isPinned;
+
+    await this.fileRepo.save(file);
+    return file;
+    } catch (err) {
+      console.error('Erro ao atualizar arquivo:', err);
+      throw new RpcException('Erro ao atualizar arquivo');
+    }
+  }
+}

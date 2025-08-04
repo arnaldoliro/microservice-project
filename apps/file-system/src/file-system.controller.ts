@@ -89,4 +89,9 @@ export class FileSystemController {
         return {success: false, message: "Falha Interna do Servidor"}
       }
     }
+
+    @MessagePattern({ cmd: 'update-file' })
+    async updateFile(@Payload() id: number, dto: CreateFileDto) {
+      return this.fileSystemService.updateFile(dto, id);
+    }
 }
