@@ -91,7 +91,7 @@ export class AppController {
     @Query('category') category?: string,
     @Query('date') date?: string,
     @Query('page') page = 1,
-    @Query('limit') limit = 10,
+    @Query('limit') limit = 12,
   ){
     const payload: Record<string, any> = {
       page: Number(page),

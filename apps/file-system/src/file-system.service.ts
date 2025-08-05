@@ -70,7 +70,7 @@ export class FileSystemService {
   async searchFile(
     filters: { search?: string; category?: string; date?: string; skip?: number; limit?: number }
   ) {
-    const { search, category, date, skip = 0, limit = 10 } = filters;
+    const { search, category, date, skip = 0, limit = 12 } = filters;
     const qb = this.fileRepo.createQueryBuilder('file');
 
     if (search) {
