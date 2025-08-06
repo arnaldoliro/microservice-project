@@ -5,9 +5,12 @@ import { ValidationPipe } from '@nestjs/common';
 import * as bodyParser from 'body-parser'
 
 async function bootstrap() {
+
+  const allowedOrigins = process.env.CORS_ORIGINS?.split(',').map(origin => origin.trim());
+
   const app = await NestFactory.create(AppModule, {
     cors: {
-      origin: 'http://localhost:3001',
+      origin: allowedOrigins,
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
       credentials: true,
       exposedHeaders: ['Content-Disposition'],
