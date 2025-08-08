@@ -51,7 +51,7 @@ export class FileSystemService {
     fileEntity.originalFileName = dto.originalFileName;
     fileEntity.mimeType = realMime;
     fileEntity.lotacao = dto.lotacao;
-    fileEntity.fixado = dto.isPinned;
+    fileEntity.fixado = dto.isPinned ? 'S' : 'N';
     fileEntity.conteudo = buffer;
 
     // Salva e retorna
@@ -59,89 +59,89 @@ export class FileSystemService {
     return this.fileRepo.findOne({ where: { id: saved.id } });
   }
 
-  async listFile() {
-    return await this.fileRepo.find({
-      select: ['id', 'nome', 'descricao', 'categoria', 'lotacao', 'criadoEm'],
-      order: { criadoEm: 'DESC' },
-      take: 100,
-    });
-  }
+//   async listFile() {
+//     return await this.fileRepo.find({
+//       select: ['id', 'nome', 'descricao', 'categoria', 'lotacao', 'criadoEm'],
+//       order: { criadoEm: 'DESC' },
+//       take: 100,
+//     });
+//   }
 
-  async searchFile(
-    filters: { search?: string; category?: string; date?: string; skip?: number; limit?: number }
-  ) {
-    const { search, category, date, skip = 0, limit = 12 } = filters;
-    const qb = this.fileRepo.createQueryBuilder('file');
+//   async searchFile(
+//     filters: { search?: string; category?: string; date?: string; skip?: number; limit?: number }
+//   ) {
+//     const { search, category, date, skip = 0, limit = 12 } = filters;
+//     const qb = this.fileRepo.createQueryBuilder('file');
 
-    if (search) {
-      qb.andWhere('(file.nome ILIKE :search OR file.descricao ILIKE :search)', { search: `%${search}%` });
-    }
-    if (category) {
-      qb.andWhere('file.categoria = :category', { category });
-    }
-    if (date) {
-      const start = new Date(`${date}T00:00:00`);
-      const end = new Date(`${date}T23:59:59`);
-      qb.andWhere('file.criadoEm BETWEEN :start AND :end', { start, end });
-    }
-    qb.orderBy('file.criadoEm', 'DESC');
-    qb.skip(skip);
-    qb.take(limit);
-    qb.select([
-      'file.id',
-      'file.nome',
-      'file.descricao',
-      'file.categoria',
-      'file.lotacao',
-      'file.criadoEm',
-      'file.fixado',
-    ]);
-    return qb.getMany();
-  }
+//     if (search) {
+//       qb.andWhere('(file.nome ILIKE :search OR file.descricao ILIKE :search)', { search: `%${search}%` });
+//     }
+//     if (category) {
+//       qb.andWhere('file.categoria = :category', { category });
+//     }
+//     if (date) {
+//       const start = new Date(`${date}T00:00:00`);
+//       const end = new Date(`${date}T23:59:59`);
+//       qb.andWhere('file.criadoEm BETWEEN :start AND :end', { start, end });
+//     }
+//     qb.orderBy('file.criadoEm', 'DESC');
+//     qb.skip(skip);
+//     qb.take(limit);
+//     qb.select([
+//       'file.id',
+//       'file.nome',
+//       'file.descricao',
+//       'file.categoria',
+//       'file.lotacao',
+//       'file.criadoEm',
+//       'file.fixado',
+//     ]);
+//     return qb.getMany();
+//   }
 
-  async findOneFile(id: number) { 
-    return await this.fileRepo.findOne({where: { id: id }})
-  }
+//   async findOneFile(id: number) { 
+//     return await this.fileRepo.findOne({where: { id: id }})
+//   }
 
-  async deleteFile(id: number) {
-    const deletedFiles = await this.fileRepo.delete(id)
-    if(deletedFiles.affected === 0) {
-      throw new NotFoundException(`Arquivod com id ${id} não encontrado`)
-    }
-    return { message: 'Arquivo deletado com sucesso' };
-  }
+//   async deleteFile(id: number) {
+//     const deletedFiles = await this.fileRepo.delete(id)
+//     if(deletedFiles.affected === 0) {
+//       throw new NotFoundException(`Arquivod com id ${id} não encontrado`)
+//     }
+//     return { message: 'Arquivo deletado com sucesso' };
+//   }
 
-  async deleteAllFiles() {
-    await this.fileRepo.clear()
-    return { message: 'Arquivos deletados com sucesso' };
-  }
+//   async deleteAllFiles() {
+//     await this.fileRepo.clear()
+//     return { message: 'Arquivos deletados com sucesso' };
+//   }
 
-  async fixFile(id, fixedFile){
-    console.log('Entrando no service')
-    await this.fileRepo.update(id, {fixado: fixedFile})
-    console.log('Salvo com sucesso')
+//   async fixFile(id, fixedFile){
+//     console.log('Entrando no service')
+//     await this.fileRepo.update(id, {fixado: fixedFile})
+//     console.log('Salvo com sucesso')
 
-    return { message: 'Arquivo salvo com sucesso!', fixedFile}
-  }
+//     return { message: 'Arquivo salvo com sucesso!', fixedFile}
+//   }
 
-  async updateFile(dto: UpdateFileDto) {
-    try {
-      console.log('Entrando no service de update')
-      const file = await this.findOneFile(dto.id);
-      console.log('Arquivo encontrado:', file);
-    if (!file) {
-      console.log('Arquivo não encontrado')
-      throw new NotFoundException(`Arquivo com id ${dto.id} não encontrado`);
-    }
+//   async updateFile(dto: UpdateFileDto) {
+//     try {
+//       console.log('Entrando no service de update')
+//       const file = await this.findOneFile(dto.id);
+//       console.log('Arquivo encontrado:', file);
+//     if (!file) {
+//       console.log('Arquivo não encontrado')
+//       throw new NotFoundException(`Arquivo com id ${dto.id} não encontrado`);
+//     }
 
-    file.nome = dto.nome;
-    file.descricao = dto.descricao;
+//     file.nome = dto.nome;
+//     file.descricao = dto.descricao;
 
-    await this.fileRepo.save(file);
-    return file;
-    } catch (err) {
-      console.error('Erro ao atualizar arquivo:', err);
-      throw new RpcException('Erro ao atualizar arquivo');
-    }
-  }
+//     await this.fileRepo.save(file);
+//     return file;
+//     } catch (err) {
+//       console.error('Erro ao atualizar arquivo:', err);
+//       throw new RpcException('Erro ao atualizar arquivo');
+//     }
+//   }
 }

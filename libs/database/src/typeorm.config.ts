@@ -1,27 +1,21 @@
-import { User } from "@app/common";
-import { ConfigService } from "@nestjs/config";
-import { DataSourceOptions } from "typeorm";
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { File } from '../../common/src/entities/files.entity';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
-// Database de Dev
-// export const getTypeOrmConfig = (configService: ConfigService): DataSourceOptions => ({
-//     type: 'oracle',
-//     host: configService.get<string>('DB_HOST'),
-//     port: configService.get<number>('DB_PORT'),
-//     username: configService.get<string>('DB_USERNAME'),
-//     password: configService.get<string>('DB_PASSWORD'),
-//     sid: configService.get<string>('DB_SID'),
-//     entities: [User],
-//     synchronize: false
-// })
+console.log('DB USERNAME:', process.env.DB_USERNAME);
+console.log('DB PASSWORD:', process.env.DB_PASSWORD);
+console.log('DB HOST:', process.env.DB_HOST);
+console.log('DB SID:', process.env.DB_SID);
 
-// Database de Teste
-export const getTypeOrmConfig = (configService: ConfigService): DataSourceOptions => ({
-    type: 'postgres',
-    host: configService.get<string>('DB_HOST'),
-    port: configService.get<number>('DB_PORT'),
-    username: configService.get<string>('DB_USERNAME'),
-    password: configService.get<string>('DB_PASSWORD'),
-    database: configService.get<string>('DB_NAME'),
-    entities: [File],
-    synchronize: true
-})
+export const typeOrmConfig: TypeOrmModuleOptions = {
+  type: 'oracle',
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  sid: process.env.DB_SID,
+  synchronize: false,
+  logging: true,
+  entities: [File],
+};

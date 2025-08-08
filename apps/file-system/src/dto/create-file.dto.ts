@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsString, IsBase64, IsOptional, isNotEmpty, IsBoolean } from 'class-validator';
+import { IsNotEmpty, IsString, IsBase64, IsOptional, IsBoolean, IsIn, IsNumber } from 'class-validator';
 
 export class CreateFileDto {
   @IsNotEmpty({ message: 'O nome é obrigatório' })
@@ -19,8 +19,8 @@ export class CreateFileDto {
   originalFileName: string;
 
   @IsNotEmpty({ message: 'A lotação é obrigatória' })
-  @IsString({ message: 'A lotação deve ser uma string' })
-  lotacao: string;
+  @IsNumber({}, { message: 'A lotação deve ser um número' })
+  lotacao: number;
 
   @IsNotEmpty({ message: 'O conteúdo do arquivo é obrigatório' })
   @IsBase64()
@@ -33,4 +33,5 @@ export class CreateFileDto {
   @IsBoolean({ message: 'O valor de fixado deve ser verdadeiro ou falso' })
   @Type(() => Boolean)
   isPinned: boolean;
+
 }
