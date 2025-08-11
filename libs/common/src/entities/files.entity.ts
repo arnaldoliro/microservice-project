@@ -33,11 +33,11 @@
 //   fixado: boolean;
 // }
 
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({ name: 'ARQUIVO_PORTAL' })
+@Entity({ name: 'ARQUIVO_PORTAL_TEST' })
 export class File {
-  @PrimaryColumn({ name: 'CD_ARQUIVO', type: 'number' })
+  @PrimaryGeneratedColumn('increment', { name: 'CD_ARQUIVO', type: 'number' })
   id: number;
 
   @Column({ name: 'NM_ARQUIVO', type: 'varchar2', length: 200 })

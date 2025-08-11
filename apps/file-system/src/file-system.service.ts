@@ -56,48 +56,85 @@ export class FileSystemService {
 
     // Salva e retorna
     const saved = await this.fileRepo.save(fileEntity);
-    return this.fileRepo.findOne({ where: { id: saved.id } });
+
+    const file = await this.fileRepo.createQueryBuilder('File')
+      .where('File.CD_ARQUIVO = :id', { id: saved.id })
+      .andWhere('ROWNUM = 1')
+      .getOne();
+
+    return file;
   }
 
-//   async listFile() {
-//     return await this.fileRepo.find({
-//       select: ['id', 'nome', 'descricao', 'categoria', 'lotacao', 'criadoEm'],
-//       order: { criadoEm: 'DESC' },
-//       take: 100,
-//     });
-//   }
+  async listFile() {
+    return await this.fileRepo.find({
+      select: ['id', 'nome', 'descricao', 'categoria', 'lotacao', 'criadoEm'],
+      order: { criadoEm: 'DESC' },
+      take: 100,
+    });
+  }
 
-//   async searchFile(
-//     filters: { search?: string; category?: string; date?: string; skip?: number; limit?: number }
-//   ) {
-//     const { search, category, date, skip = 0, limit = 12 } = filters;
-//     const qb = this.fileRepo.createQueryBuilder('file');
+  async searchFile({ search, category, date, skip = 0, limit = 12 }: 
+    { search?: string; category?: string; date?: string; skip?: number; limit?: number }) {
 
-//     if (search) {
-//       qb.andWhere('(file.nome ILIKE :search OR file.descricao ILIKE :search)', { search: `%${search}%` });
-//     }
-//     if (category) {
-//       qb.andWhere('file.categoria = :category', { category });
-//     }
-//     if (date) {
-//       const start = new Date(`${date}T00:00:00`);
-//       const end = new Date(`${date}T23:59:59`);
-//       qb.andWhere('file.criadoEm BETWEEN :start AND :end', { start, end });
-//     }
-//     qb.orderBy('file.criadoEm', 'DESC');
-//     qb.skip(skip);
-//     qb.take(limit);
-//     qb.select([
-//       'file.id',
-//       'file.nome',
-//       'file.descricao',
-//       'file.categoria',
-//       'file.lotacao',
-//       'file.criadoEm',
-//       'file.fixado',
-//     ]);
-//     return qb.getMany();
-//   }
+    let whereClause = '';
+    const params: any = {};
+
+    if (search) {
+      whereClause += ` AND (LOWER("NM_ARQUIVO") LIKE LOWER(:search) OR LOWER("DS_ARQUIVO") LIKE LOWER(:search))`;
+      params.search = `%${search}%`;
+    }
+
+    if (category) {
+      whereClause += ` AND "CD_TIPO_ARQUIVO" = :category`;
+      params.category = category;
+    }
+
+    if (date && !isNaN(Date.parse(date))) {
+      const start = new Date(date);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(date);
+      end.setHours(23, 59, 59, 999);
+      whereClause += ` AND "DT_PUBLICACAO" BETWEEN :start AND :end`;
+      params.start = start;
+      params.end = end;
+    }
+
+    params.maxRow = skip + limit;
+    params.skip = skip;
+
+    const query = `
+      SELECT * FROM (
+        SELECT inner_query.*, ROWNUM rn
+        FROM (
+          SELECT
+            "CD_ARQUIVO" AS "id",
+            "NM_ARQUIVO" AS "nome",
+            "DS_ARQUIVO" AS "descricao",
+            "DT_PUBLICACAO" AS "criadoEm",
+            "CD_TIPO_ARQUIVO" AS "categoria",
+            CASE 
+              WHEN "SN_FIXADO" = 'S' THEN 1
+              ELSE 0
+            END AS fixado
+          FROM "ARQUIVO_PORTAL_TEST"
+          WHERE 1=1 ${whereClause}
+          ORDER BY "DT_PUBLICACAO" DESC
+        ) inner_query
+        WHERE ROWNUM <= :maxRow
+      )
+      WHERE rn > :skip
+    `;
+
+    const files = await this.fileRepo.query(query, params);
+
+    // Converter fixado de number para boolean
+    return files.map(file => ({
+      ...file,
+      fixado: file.fixado === 1
+    }));
+  }
+
+
 
 //   async findOneFile(id: number) { 
 //     return await this.fileRepo.findOne({where: { id: id }})
@@ -144,4 +181,5 @@ export class FileSystemService {
 //       throw new RpcException('Erro ao atualizar arquivo');
 //     }
 //   }
+
 }

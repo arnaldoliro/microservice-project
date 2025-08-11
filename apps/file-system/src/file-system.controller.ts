@@ -18,13 +18,13 @@ export class FileSystemController {
   }
 
 
-  // @MessagePattern({ cmd: 'list-files' })
-  // async list(@Payload() data: { search?: string; category?: string; date?: string; page?: number; limit?: number }) {
-  //   const { search, category, date, page = 1, limit = 12 } = data;
-  //   const skip = (page - 1) * limit;
-  //   // Apenas delega para o service, sem lógica de filtro aqui
-  //   return this.fileSystemService.searchFile({ search, category, date, skip, limit });
-  // }
+  @MessagePattern({ cmd: 'list-files' })
+  async list(@Payload() data: { search?: string; category?: string; date?: string; page?: number; limit?: number }) {
+    const { search, category, date, page = 1, limit = 12 } = data;
+    const skip = (page - 1) * limit;
+    // Apenas delega para o service, sem lógica de filtro aqui
+    return this.fileSystemService.searchFile({ search, category, date, skip, limit });
+  }
 
 
 
