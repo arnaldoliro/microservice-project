@@ -76,10 +76,16 @@ export class FileSystemController {
         throw new NotFoundException('Arquivo não encontrado!');
       }
 
-      const currentFixado = file.SN_FIXADO;
+      let fixedFile
+      
+      if(file.SN_FIXADO === 'F') {
+        fixedFile = true
+      } else {
+        fixedFile = false
+      }
 
-      let fixedFile = !currentFixado;
-
+      console.log(`[Controller] - Valor do fixedFile: ${fixedFile}`)
+      
       return this.fileSystemService.fixFile(id, fixedFile);
  
     } catch(err) {

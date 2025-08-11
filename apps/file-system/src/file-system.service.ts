@@ -162,6 +162,7 @@ export class FileSystemService {
   async fixFile(id: number, fixedFile: boolean) {
 
   const fixadoValue = fixedFile ? 'S' : 'F';
+  console.log(`[Service] - Valor do fixadoValue: ${fixadoValue}`)
   
   await this.fileRepo.update(id, { fixado: fixadoValue });
 
