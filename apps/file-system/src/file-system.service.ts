@@ -146,13 +146,13 @@ export class FileSystemService {
     return result[0]; 
   }
 
-//   async deleteFile(id: number) {
-//     const deletedFiles = await this.fileRepo.delete(id)
-//     if(deletedFiles.affected === 0) {
-//       throw new NotFoundException(`Arquivod com id ${id} não encontrado`)
-//     }
-//     return { message: 'Arquivo deletado com sucesso' };
-//   }
+  async deleteFile(id: number) {
+    const deletedFiles = await this.fileRepo.delete(id)
+    if(deletedFiles.affected === 0) {
+      throw new NotFoundException(`Arquivod com id ${id} não encontrado`)
+    }
+    return { message: 'Arquivo deletado com sucesso' };
+  }
 
 //   async deleteAllFiles() {
 //     await this.fileRepo.clear()

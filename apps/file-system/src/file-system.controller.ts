@@ -28,16 +28,16 @@ export class FileSystemController {
 
 
 
-  // @MessagePattern({ cmd: 'delete-files' })
-  // async delete(id: number) {
-  //   try {
-  //     const deletedFile = await this.fileSystemService.deleteFile(id)
-  //     return {succces: true, message: `Arquivo deletado com sucesso! ${deletedFile}`}
-  //   } catch (err) {
-  //     console.error(err)
-  //     return {succces: false, message: `Erro interno do servidor: ${err}`}
-  //   }
-  // }
+  @MessagePattern({ cmd: 'delete-files' })
+  async delete(id: number) {
+    try {
+      const deletedFile = await this.fileSystemService.deleteFile(id)
+      return {succces: true, message: `Arquivo deletado com sucesso! ${deletedFile}`}
+    } catch (err) {
+      console.error(err)
+      return {succces: false, message: `Erro interno do servidor: ${err}`}
+    }
+  }
 
   // @MessagePattern({ cmd: 'delete-all-files'})
   // async deleteAll() {
