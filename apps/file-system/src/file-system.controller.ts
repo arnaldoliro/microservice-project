@@ -64,34 +64,27 @@ export class FileSystemController {
   //   };
   // }
 
-  // @MessagePattern({cmd: 'fix-files'})
-  //   async fixFiles(@Payload() id: number) {
-  //     try{
-  //       // console.log('Rota acionada...')
-  //       // console.log(`Payload recebido: ${data}`)
+  @MessagePattern({cmd: 'fix-files'})
+  async fixFiles(@Payload() id: number) {
+    try{
+      console.log('Rota acionada...')
+      // console.log(`Payload recebido: ${data}`)
 
-  //       const file = await this.fileSystemService.findOneFile(id)
-
-  //     if(!file) {
-  //       throw new NotFoundException('Arquivo não encontrado!')
-  //     }
-
-  //     // console.log('O file existe', file)
-
-  //     let fixedFile = !file.fixado
-
-  //     // console.log(`O valor de do file: ${file.fixado} sempre vai ser ao contrario fixedFile: ${fixedFile}`)
+      const file = await this.fileSystemService.findOneFile(id);
       
-  //     return this.fileSystemService.fixFile(id, fixedFile)
- 
-  //     } catch(err) {
-  //       console.log(err)
-  //       return {success: false, message: "Falha Interna do Servidor"}
-  //     }
-  //   }
+      if (!file) {
+        throw new NotFoundException('Arquivo não encontrado!');
+      }
 
-    // @MessagePattern({ cmd: 'update-file' })
-    // async updateFile(@Payload() dto: UpdateFileDto) {
-    //   return this.fileSystemService.updateFile(dto);
-    // }
+      const currentFixado = file.SN_FIXADO;
+
+      let fixedFile = !currentFixado;
+
+      return this.fileSystemService.fixFile(id, fixedFile);
+ 
+    } catch(err) {
+      console.log(err)
+      return {success: false, message: "Falha Interna do Servidor"}
+    }
+  }
 }

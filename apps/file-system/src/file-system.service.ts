@@ -99,23 +99,20 @@ export class FileSystemService {
       params.end = end;
     }
 
-    params.maxRow = skip + limit;
+    const maxRow = skip + limit;
+    params.maxRow = maxRow;
     params.skip = skip;
 
     const query = `
       SELECT * FROM (
-        SELECT inner_query.*, ROWNUM rn
-        FROM (
+        SELECT inner_query.*, ROWNUM rn FROM (
           SELECT
             "CD_ARQUIVO" AS "id",
             "NM_ARQUIVO" AS "nome",
             "DS_ARQUIVO" AS "descricao",
             "DT_PUBLICACAO" AS "criadoEm",
             "CD_TIPO_ARQUIVO" AS "categoria",
-            CASE 
-              WHEN "SN_FIXADO" = 'S' THEN 1
-              ELSE 0
-            END AS fixado
+            CASE WHEN "SN_FIXADO" = 'S' THEN 1 ELSE 0 END AS "fixado"
           FROM "ARQUIVO_PORTAL_TEST"
           WHERE 1=1 ${whereClause}
           ORDER BY "DT_PUBLICACAO" DESC
@@ -127,7 +124,6 @@ export class FileSystemService {
 
     const files = await this.fileRepo.query(query, params);
 
-    // Converter fixado de number para boolean
     return files.map(file => ({
       ...file,
       fixado: file.fixado === 1
@@ -136,9 +132,19 @@ export class FileSystemService {
 
 
 
-//   async findOneFile(id: number) { 
-//     return await this.fileRepo.findOne({where: { id: id }})
-//   }
+
+  async findOneFile(id: number) { 
+    console.log(`[Service] - Entrando no fix do ID: ${id}`)
+
+    const rawQuery = `
+      SELECT * FROM (
+        SELECT * FROM "ARQUIVO_PORTAL_TEST" WHERE "CD_ARQUIVO" = :id
+      ) WHERE ROWNUM = 1
+    `;
+
+    const result = await this.fileRepo.query(rawQuery, [id]);
+    return result[0]; 
+  }
 
 //   async deleteFile(id: number) {
 //     const deletedFiles = await this.fileRepo.delete(id)
@@ -153,13 +159,15 @@ export class FileSystemService {
 //     return { message: 'Arquivos deletados com sucesso' };
 //   }
 
-//   async fixFile(id, fixedFile){
-//     console.log('Entrando no service')
-//     await this.fileRepo.update(id, {fixado: fixedFile})
-//     console.log('Salvo com sucesso')
+  async fixFile(id: number, fixedFile: boolean) {
 
-//     return { message: 'Arquivo salvo com sucesso!', fixedFile}
-//   }
+  const fixadoValue = fixedFile ? 'S' : 'F';
+  
+  await this.fileRepo.update(id, { fixado: fixadoValue });
+
+  return { message: 'Arquivo salvo com sucesso!', fixedFile };
+}
+
 
 //   async updateFile(dto: UpdateFileDto) {
 //     try {
