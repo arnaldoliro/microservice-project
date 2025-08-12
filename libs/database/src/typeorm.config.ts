@@ -3,11 +3,6 @@ import { File } from '../../common/src/entities/files.entity';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-console.log('DB USERNAME:', process.env.DB_USERNAME);
-console.log('DB PASSWORD:', process.env.DB_PASSWORD);
-console.log('DB HOST:', process.env.DB_HOST);
-console.log('DB SID:', process.env.DB_SID);
-
 export const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'oracle',
   host: process.env.DB_HOST,

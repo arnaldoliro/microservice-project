@@ -28,7 +28,6 @@ export class FileSystemService {
       throw new RpcException('Arquivo excede o tamanho máximo permitido de 10MB.');
     }
 
-    // Detecta o tipo MIME real do conteúdo
     const fileType = await fileTypeFromBuffer(buffer);
     if (!fileType) {
       throw new RpcException('Não foi possível detectar o tipo do arquivo.');
@@ -36,14 +35,12 @@ export class FileSystemService {
 
     const realMime = fileType.mime;
 
-    // Valida se o tipo MIME bate com a categoria fornecida
     if (!isMimeTypeValidForCategory(realMime, dto.categoria)) {
       throw new RpcException(
         `Tipo de arquivo não é permitido para a categoria ${dto.categoria}.`
       );
     }
 
-    // Cria entidade para salvar no banco
     const fileEntity = new File();
     fileEntity.nome = dto.nome;
     fileEntity.descricao = dto.descricao;
@@ -55,7 +52,6 @@ export class FileSystemService {
     fileEntity.conteudo = buffer;
     fileEntity.criadoEm = new Date();
 
-    // Salva e retorna
     const saved = await this.fileRepo.save(fileEntity);
 
     const file = await this.fileRepo.createQueryBuilder('File')
@@ -147,11 +143,6 @@ export class FileSystemService {
     return { message: 'Arquivo deletado com sucesso' };
   }
 
-//   async deleteAllFiles() {
-//     await this.fileRepo.clear()
-//     return { message: 'Arquivos deletados com sucesso' };
-//   }
-
   async fixFile(id: number, fixedFile: boolean) {
 
   const fixadoValue = fixedFile ? 'S' : 'F';
@@ -166,7 +157,6 @@ export class FileSystemService {
       const file = await this.findOneFile(dto.id)
 
       if (!file) {
-        console.log('Arquivo não encontrado');
         throw new NotFoundException(`Arquivo com id ${dto.id} não encontrado`);
       }
 

@@ -46,7 +46,6 @@ export class FileSystemController {
   @MessagePattern({ cmd: 'download-arquivo' })
     async downloadArquivo(@Payload() id: number) {
     const file = await this.fileSystemService.findOneFile(id);
-    console.log('File encontrado!', file)
 
     if (!file) throw new NotFoundException('Arquivo não encontrado');
 
@@ -62,9 +61,6 @@ export class FileSystemController {
   @MessagePattern({cmd: 'fix-files'})
   async fixFiles(@Payload() id: number) {
     try{
-      console.log('Rota acionada...')
-      // console.log(`Payload recebido: ${data}`)
-
       const file = await this.fileSystemService.findOneFile(id);
       
       if (!file) {
@@ -78,13 +74,10 @@ export class FileSystemController {
       } else {
         fixedFile = false
       }
-
-      console.log(`[Controller] - Valor do fixedFile: ${fixedFile}`)
       
       return this.fileSystemService.fixFile(id, fixedFile);
  
     } catch(err) {
-      console.log(err)
       return {success: false, message: "Falha Interna do Servidor"}
     }
   }

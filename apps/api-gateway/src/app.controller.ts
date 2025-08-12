@@ -20,14 +20,12 @@ export class AppController {
   // Rotas do usuário
   @Get('/users')
   async getUsers() {
-    console.log('Rota /users acessada');
     const response$ = this.userServiceClient.send({ cmd: 'get-users' }, {});
     return await lastValueFrom(response$);
   }
 
   @Post('/user/register')
   async register(@Body() data: CreateUserDto) {
-    console.log('Rota /user/register acessada');
     const response$ = this.userServiceClient.send({ cmd: 'post-user'}, data)
     const user = await lastValueFrom(response$)
     return {
@@ -39,7 +37,6 @@ export class AppController {
 
   @Put('/user/update')
   async update(@Body() data: any) {
-    console.log('Rota /user/update acessada');
     const response$ = this.userServiceClient.send({ cmd: 'put-user'}, data)
     const user = await lastValueFrom(response$)
     return {
@@ -51,7 +48,6 @@ export class AppController {
 
   @Delete('/user/delete')
   async delete(@Body() data: any) {
-    console.log('Rota /user/delete acessada');
     const response$ = this.userServiceClient.send({ cmd: 'delete-user'}, data)
     const user = await lastValueFrom(response$)
     return {
@@ -102,8 +98,6 @@ export class AppController {
     if (category && category !== "" && category !== "Todas as categorias") payload.category = category
     if (date && !isNaN(Date.parse(date))) payload.date = date
 
-    console.log('[Gateway] Enviando para microserviço:', payload)
-
     try {
       const result = await firstValueFrom(
         this.fileService.send({ cmd: 'list-files' }, payload)
@@ -138,8 +132,6 @@ export class AppController {
       const ext = mime.extension(mimeType);
       if (ext) fileName += '.' + ext;
     }
-
-    console.log(`Baixando arquivo: ${fileName}, Tipo: ${mimeType}`);
 
     res.setHeader('Content-Type', mimeType);
     res.setHeader('Content-Disposition', `attachment; filename=\"${fileName}\"`);
