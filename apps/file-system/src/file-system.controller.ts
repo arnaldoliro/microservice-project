@@ -13,85 +13,79 @@ export class FileSystemController {
   @MessagePattern({ cmd: 'upload-file' })
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async upload(@Payload() dto: CreateFileDto) {
-  // Apenas delega para o service
+
   return this.fileSystemService.uploadFile(dto);
   }
 
 
-  // @MessagePattern({ cmd: 'list-files' })
-  // async list(@Payload() data: { search?: string; category?: string; date?: string; page?: number; limit?: number }) {
-  //   const { search, category, date, page = 1, limit = 12 } = data;
-  //   const skip = (page - 1) * limit;
-  //   // Apenas delega para o service, sem lógica de filtro aqui
-  //   return this.fileSystemService.searchFile({ search, category, date, skip, limit });
-  // }
+  @MessagePattern({ cmd: 'list-files' })
+  async list(@Payload() data: { search?: string; category?: string; date?: string; page?: number; limit?: number }) {
+    const { search, category, date, page = 1, limit = 12 } = data;
+    const skip = (page - 1) * limit;
+
+    return this.fileSystemService.searchFile({ search, category, date, skip, limit });
+  }
+
+  @MessagePattern({cmd: 'update-file'})
+  async update(@Payload() dto: UpdateFileDto) {
+    return this.fileSystemService.updateFile(dto)
+  }
 
 
+  @MessagePattern({ cmd: 'delete-files' })
+  async delete(id: number) {
+    try {
+      const deletedFile = await this.fileSystemService.deleteFile(id)
+      return {succces: true, message: `Arquivo deletado com sucesso! ${deletedFile}`}
+    } catch (err) {
+      console.error(err)
+      return {succces: false, message: `Erro interno do servidor: ${err}`}
+    }
+  }
 
-  // @MessagePattern({ cmd: 'delete-files' })
-  // async delete(id: number) {
-  //   try {
-  //     const deletedFile = await this.fileSystemService.deleteFile(id)
-  //     return {succces: true, message: `Arquivo deletado com sucesso! ${deletedFile}`}
-  //   } catch (err) {
-  //     console.error(err)
-  //     return {succces: false, message: `Erro interno do servidor: ${err}`}
-  //   }
-  // }
+  @MessagePattern({ cmd: 'download-arquivo' })
+    async downloadArquivo(@Payload() id: number) {
+    const file = await this.fileSystemService.findOneFile(id);
+    console.log('File encontrado!', file)
 
-  // @MessagePattern({ cmd: 'delete-all-files'})
-  // async deleteAll() {
-  //   try {
-  //     return await this.fileSystemService.deleteAllFiles()
-  //   } catch(err) {
-  //     console.log(err)
-  //     return {success: false, message: `Erro interno do servidor: ${err}`}
-  //   }
-  // }
+    if (!file) throw new NotFoundException('Arquivo não encontrado');
 
-  // @MessagePattern({ cmd: 'download-arquivo' })
-  //   async downloadArquivo(@Payload() id: number) {
-  //   const file = await this.fileSystemService.findOneFile(id);
+    const mimeType = mime.lookup(file.originalFileName) || 'application/octet-stream';
 
-  //   if (!file) throw new NotFoundException('Arquivo não encontrado');
+    return {
+      nome: file.originalFileName,
+      conteudo: file.conteudo.toString('base64'),
+      mimeType,
+    };
+  }
 
-  //   const mimeType = mime.lookup(file.originalFileName) || 'application/octet-stream';
+  @MessagePattern({cmd: 'fix-files'})
+  async fixFiles(@Payload() id: number) {
+    try{
+      console.log('Rota acionada...')
+      // console.log(`Payload recebido: ${data}`)
 
-  //   return {
-  //     nome: file.originalFileName,
-  //     conteudo: file.conteudo.toString('base64'),
-  //     mimeType,
-  //   };
-  // }
-
-  // @MessagePattern({cmd: 'fix-files'})
-  //   async fixFiles(@Payload() id: number) {
-  //     try{
-  //       // console.log('Rota acionada...')
-  //       // console.log(`Payload recebido: ${data}`)
-
-  //       const file = await this.fileSystemService.findOneFile(id)
-
-  //     if(!file) {
-  //       throw new NotFoundException('Arquivo não encontrado!')
-  //     }
-
-  //     // console.log('O file existe', file)
-
-  //     let fixedFile = !file.fixado
-
-  //     // console.log(`O valor de do file: ${file.fixado} sempre vai ser ao contrario fixedFile: ${fixedFile}`)
+      const file = await this.fileSystemService.findOneFile(id);
       
-  //     return this.fileSystemService.fixFile(id, fixedFile)
- 
-  //     } catch(err) {
-  //       console.log(err)
-  //       return {success: false, message: "Falha Interna do Servidor"}
-  //     }
-  //   }
+      if (!file) {
+        throw new NotFoundException('Arquivo não encontrado!');
+      }
 
-    // @MessagePattern({ cmd: 'update-file' })
-    // async updateFile(@Payload() dto: UpdateFileDto) {
-    //   return this.fileSystemService.updateFile(dto);
-    // }
+      let fixedFile
+      
+      if(file.fixado === 'F') {
+        fixedFile = true
+      } else {
+        fixedFile = false
+      }
+
+      console.log(`[Controller] - Valor do fixedFile: ${fixedFile}`)
+      
+      return this.fileSystemService.fixFile(id, fixedFile);
+ 
+    } catch(err) {
+      console.log(err)
+      return {success: false, message: "Falha Interna do Servidor"}
+    }
+  }
 }
