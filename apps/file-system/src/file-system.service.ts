@@ -53,6 +53,7 @@ export class FileSystemService {
     fileEntity.lotacao = dto.lotacao;
     fileEntity.fixado = dto.isPinned ? 'S' : 'N';
     fileEntity.conteudo = buffer;
+    fileEntity.criadoEm = new Date();
 
     // Salva e retorna
     const saved = await this.fileRepo.save(fileEntity);
@@ -113,7 +114,7 @@ export class FileSystemService {
             "DT_PUBLICACAO" AS "criadoEm",
             "CD_TIPO_ARQUIVO" AS "categoria",
             CASE WHEN "SN_FIXADO" = 'S' THEN 1 ELSE 0 END AS "fixado"
-          FROM "ARQUIVO_PORTAL_TEST"
+          FROM "ARQUIVO_PORTAL"
           WHERE 1=1 ${whereClause}
           ORDER BY "DT_PUBLICACAO" DESC
         ) inner_query
