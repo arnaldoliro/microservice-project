@@ -13,7 +13,7 @@ export class FileSystemController {
   @MessagePattern({ cmd: 'upload-file' })
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async upload(@Payload() dto: CreateFileDto) {
-  // Apenas delega para o service
+
   return this.fileSystemService.uploadFile(dto);
   }
 
@@ -22,7 +22,7 @@ export class FileSystemController {
   async list(@Payload() data: { search?: string; category?: string; date?: string; page?: number; limit?: number }) {
     const { search, category, date, page = 1, limit = 12 } = data;
     const skip = (page - 1) * limit;
-    // Apenas delega para o service, sem lógica de filtro aqui
+
     return this.fileSystemService.searchFile({ search, category, date, skip, limit });
   }
 
@@ -43,20 +43,21 @@ export class FileSystemController {
     }
   }
 
-  // @MessagePattern({ cmd: 'download-arquivo' })
-  //   async downloadArquivo(@Payload() id: number) {
-  //   const file = await this.fileSystemService.findOneFile(id);
+  @MessagePattern({ cmd: 'download-arquivo' })
+    async downloadArquivo(@Payload() id: number) {
+    const file = await this.fileSystemService.findOneFile(id);
+    console.log('File encontrado!', file)
 
-  //   if (!file) throw new NotFoundException('Arquivo não encontrado');
+    if (!file) throw new NotFoundException('Arquivo não encontrado');
 
-  //   const mimeType = mime.lookup(file.originalFileName) || 'application/octet-stream';
+    const mimeType = mime.lookup(file.originalFileName) || 'application/octet-stream';
 
-  //   return {
-  //     nome: file.originalFileName,
-  //     conteudo: file.conteudo.toString('base64'),
-  //     mimeType,
-  //   };
-  // }
+    return {
+      nome: file.originalFileName,
+      conteudo: file.conteudo.toString('base64'),
+      mimeType,
+    };
+  }
 
   @MessagePattern({cmd: 'fix-files'})
   async fixFiles(@Payload() id: number) {
@@ -72,7 +73,7 @@ export class FileSystemController {
 
       let fixedFile
       
-      if(file.SN_FIXADO === 'F') {
+      if(file.fixado === 'F') {
         fixedFile = true
       } else {
         fixedFile = false

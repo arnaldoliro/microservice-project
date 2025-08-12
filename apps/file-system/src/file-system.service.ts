@@ -130,21 +130,13 @@ export class FileSystemService {
     }));
   }
 
-
-
-
-  async findOneFile(id: number) { 
-    console.log(`[Service] - Entrando no fix do ID: ${id}`)
-
-    const rawQuery = `
-      SELECT * FROM (
-        SELECT * FROM "ARQUIVO_PORTAL_TEST" WHERE "CD_ARQUIVO" = :id
-      ) WHERE ROWNUM = 1
-    `;
-
-    const result = await this.fileRepo.query(rawQuery, [id]);
-    return result[0]; 
+  async findOneFile(id: number) {
+    return await this.fileRepo
+      .createQueryBuilder('file')
+      .where('file.id = :id', { id })
+      .getOne();
   }
+
 
   async deleteFile(id: number) {
     const deletedFiles = await this.fileRepo.delete(id)
@@ -168,14 +160,9 @@ export class FileSystemService {
   return { message: 'Arquivo salvo com sucesso!', fixedFile };
 }
 
-
   async updateFile(dto: UpdateFileDto) {
     try {
-      const file = await this.fileRepo
-      .createQueryBuilder('file')
-      .where('file.id = :id', { id: dto.id })
-      .andWhere('ROWNUM = 1')
-      .getOne();
+      const file = await this.findOneFile(dto.id)
 
       if (!file) {
         console.log('Arquivo não encontrado');
