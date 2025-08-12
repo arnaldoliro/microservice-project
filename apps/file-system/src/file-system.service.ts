@@ -162,7 +162,6 @@ export class FileSystemService {
   async fixFile(id: number, fixedFile: boolean) {
 
   const fixadoValue = fixedFile ? 'S' : 'F';
-  console.log(`[Service] - Valor do fixadoValue: ${fixadoValue}`)
   
   await this.fileRepo.update(id, { fixado: fixadoValue });
 
@@ -170,25 +169,28 @@ export class FileSystemService {
 }
 
 
-//   async updateFile(dto: UpdateFileDto) {
-//     try {
-//       console.log('Entrando no service de update')
-//       const file = await this.findOneFile(dto.id);
-//       console.log('Arquivo encontrado:', file);
-//     if (!file) {
-//       console.log('Arquivo não encontrado')
-//       throw new NotFoundException(`Arquivo com id ${dto.id} não encontrado`);
-//     }
+  async updateFile(dto: UpdateFileDto) {
+    try {
+      const file = await this.fileRepo
+      .createQueryBuilder('file')
+      .where('file.id = :id', { id: dto.id })
+      .andWhere('ROWNUM = 1')
+      .getOne();
 
-//     file.nome = dto.nome;
-//     file.descricao = dto.descricao;
+      if (!file) {
+        console.log('Arquivo não encontrado');
+        throw new NotFoundException(`Arquivo com id ${dto.id} não encontrado`);
+      }
 
-//     await this.fileRepo.save(file);
-//     return file;
-//     } catch (err) {
-//       console.error('Erro ao atualizar arquivo:', err);
-//       throw new RpcException('Erro ao atualizar arquivo');
-//     }
-//   }
+      file.nome = dto.nome;
+      file.descricao = dto.descricao;
 
+      await this.fileRepo.save(file);
+
+      return file;
+    } catch (err) {
+      console.error('Erro ao atualizar arquivo:', err);
+      throw new RpcException('Erro ao atualizar arquivo');
+    }
+  }
 }

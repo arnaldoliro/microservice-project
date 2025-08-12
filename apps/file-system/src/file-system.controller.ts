@@ -26,6 +26,10 @@ export class FileSystemController {
     return this.fileSystemService.searchFile({ search, category, date, skip, limit });
   }
 
+  @MessagePattern({cmd: 'update-file'})
+  async update(@Payload() dto: UpdateFileDto) {
+    return this.fileSystemService.updateFile(dto)
+  }
 
 
   @MessagePattern({ cmd: 'delete-files' })
@@ -38,16 +42,6 @@ export class FileSystemController {
       return {succces: false, message: `Erro interno do servidor: ${err}`}
     }
   }
-
-  // @MessagePattern({ cmd: 'delete-all-files'})
-  // async deleteAll() {
-  //   try {
-  //     return await this.fileSystemService.deleteAllFiles()
-  //   } catch(err) {
-  //     console.log(err)
-  //     return {success: false, message: `Erro interno do servidor: ${err}`}
-  //   }
-  // }
 
   // @MessagePattern({ cmd: 'download-arquivo' })
   //   async downloadArquivo(@Payload() id: number) {
